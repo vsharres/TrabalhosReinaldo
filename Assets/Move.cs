@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEditor.VersionControl;
 
 public class Move : MonoBehaviour {
 
@@ -19,6 +19,11 @@ public class Move : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+        //if (!Jogador.EstaVivo())
+        //{
+        //    Application.LoadLevel("Game");
+        //}
+
 		if (Input.GetAxis ("Horizontal") > 0) {
 			motorJoint.motorSpeed = -velocidade;
 			for (int i = 0; i<rodas.Length; i++) {
@@ -37,4 +42,7 @@ public class Move : MonoBehaviour {
 			}
 		}
 	}
+
+    
+
 }
