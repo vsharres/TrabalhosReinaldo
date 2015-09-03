@@ -6,7 +6,11 @@ public class Inimigo : MonoBehaviour {
 	private Rigidbody2D rb;
 	private float velocidade;
 	private GameObject[] inimigos;
+    private GameObject player;
+    private Animator animator;
 	float incremento = 2f;
+
+    public int vida;
 
 	private int random;
 
@@ -15,9 +19,9 @@ public class Inimigo : MonoBehaviour {
 		rb = GetComponent<Rigidbody2D> ();
 		velocidade = 0f;
 		inimigos = GameObject.FindGameObjectsWithTag ("inimigo");
+        player = GameObject.FindGameObjectWithTag("Player");
 
-
-		random = Random.Range (0, 1);
+		random = Random.Range (0, 0);
 
 	}
 	
@@ -26,7 +30,10 @@ public class Inimigo : MonoBehaviour {
 
 		//rb.AddForce (Vector2.right * 200);
 		foreach (GameObject inimigo in inimigos) {
-			Comportamento (inimigo);
+            if (inimigo != null)
+            {
+                Comportamento(inimigo);
+            }
 		}
 
 
@@ -36,34 +43,65 @@ public class Inimigo : MonoBehaviour {
 	void Comportamento(GameObject inimigo)
 	{
 
-
+        
 
 		if (inimigo.name.IndexOf("Lesma") != -1) {
 			rb.velocity = new Vector2 (velocidade,0);
+            animator = this.GetComponent<Animator>();
+            
+
 		}
 		if (inimigo.name.IndexOf ("Mosca") != -1) {
-			Debug.Log(Mathf.Sin(random + Time.time));
-			inimigo.GetComponent<Rigidbody2D>().velocity = (new Vector2(2f,Mathf.Sin(random + Time.time))*0.2f);
+			
+			inimigo.GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0.2f,Mathf.Sin(1 + Time.time))*0.2f);
+            
 
 		}
 		if (inimigo.name.IndexOf ("Tartaruga") != -1) {
-			incremento+= 0.0001f;
-			GameObject laser = GameObject.FindGameObjectWithTag("laser");//(GameObject)Instantiate(Resources.Load<GameObject>("Laser"),inimigo.transform.position,Quaternion.identity);
-			laser.transform.localScale = new Vector3(laser.transform.localScale.x + (incremento *Time.fixedDeltaTime) ,laser.transform.localScale.y,laser.transform.localScale.z     );
+            //Invoke("LaserTartaruga", 2f);
 		}
 
 	}
 
+    void LaserTartaruga()
+    {
+        incremento += 2f;
+        GameObject laser = GameObject.FindGameObjectWithTag("laser");
+        //laser.transform.up = player.transform.position;
+        laser.transform.localScale = new Vector3(laser.transform.localScale.x + (incremento * Time.fixedDeltaTime), laser.transform.localScale.y, laser.transform.localScale.z);
+        laser.transform.position = new Vector3(laser.transform.position.x + ((incremento * Time.fixedDeltaTime) / 20), laser.transform.position.y, laser.transform.position.z);
 
+    }
 
 
 	void OnCollisionEnter2D(Collision2D other)
 	{
+
+        
+
 		if (other.gameObject.tag == "ground") {
 			velocidade = 1f;
+            animator.SetBool("isGrounded",true);
 		}
 		if (other.gameObject.tag == "tiro") {
-			Destroy(this.gameObject);
+
+            vida--;
+
+            if (vida <= 0)
+            {
+                Destroy(this.gameObject);
+            }
 		}
 	}
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if(other.gameObject.tag == "Player")
+        {
+
+            //transform.right = new Vector2(other.gameObject.transform.position.x, other.gameObject.transform.position.y);
+            
+            GetComponent<Rigidbody2D>().AddForce((other.gameObject.transform.position - transform.position) * 100f);
+        }
+    }
 }
